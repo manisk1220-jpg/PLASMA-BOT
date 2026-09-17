@@ -1,3 +1,27 @@
+const fs = require('fs');
+const express = require('express');
+const app = express();
+let pendingOrders = [];
+let linked = {};
+if (fs.existsSync('./linked.json')) {
+    linked = JSON.parse(fs.readFileSync('./linked.json'));
+}
+app.get('/api/buy', (req, res) => {
+    if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
+    pendingOrders.push({ player: req.query.player, rank: req.query.rank, days: req.query.days });
+    res.send('Order Added');
+});
+app.get('/api/pending', (req, res) => {
+    if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
+    res.json(pendingOrders);
+});
+app.get('/api/done', (req, res) => {
+    if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
+    pendingOrders = pendingOrders.filter(o => o.player!== req.query.player);
+    res.send('Done');
+});
+app.listen(3000, () => console.log('API running'));
+
 const express = require('express');
 const app = express();
 app.get('/', (req,res) => res.send('PLASMA BOT is Running!'));
