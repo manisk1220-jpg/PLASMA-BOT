@@ -15,7 +15,7 @@ const client = new Client({
 });
 
 const ROLES = {
-  vip: "VIP_ROLE_ID_HERE",
+  vip: "1544255313891295262",
 }
 
 const shopItems = {
