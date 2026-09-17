@@ -1,3 +1,12 @@
+const express = require('express');
+const app = express();
+app.get('/', (req,res) => res.send('PLASMA BOT is Running!'));
+app.listen(process.env.PORT || 10000, () => console.log('Web server started'));
+
+// ===== USKE BAAD TERA PURANA BOT KA CODE =====
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { QuickDB } = require('quick.db');
+// ... baki tera code niche same rahega
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
