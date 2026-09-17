@@ -127,25 +127,24 @@ client.on("messageCreate", async (msg) => {
     for (let id in shopItems) txt += `**${id}** - ${shopItems[id].name} - ${shopItems[id].price} coins\n`;
     return msg.channel.send(txt);
   }
-  if (cmd === "!buy") {
-    let id = args[1]?.toLowerCase();
-    if (!shopItems[id]) return msg.reply("Item not found! `!shop`");
-    let item = shopItems[id];
-    let bal = await db.get(`coins_${msg.author.id}`) || 0;
-    if (bal < item.price) return msg.reply(`Need ${item.price} coins!`);
-    await db.add(`coins_${msg.author.id}`, -item.price);
-    if (item.type === "temprole") {
-      let roleId = ROLES[item.role];
-      await msg.member.roles.add(roleId).catch(()=>{});
-      let expiresAt = Date.now() + ms(item.duration);
-      await db.set(`temp_${msg.guild.id}_${msg.author.id}_${item.role}`, { expiresAt, roleId });
-      return msg.reply(`✅ Purchased ${item.name} for ${item.duration}!`);
-    } else {
-      let inv = await db.get(`inv_${msg.author.id}`) || [];
-      inv.push(id); await db.set(`inv_${msg.author.id}`, inv);
-      return msg.reply(`✅ Bought ${item.name}!`);
+      if (cmd === "!link") {
+        const mcname = args[1];
+        if (!mcname) return msg.reply('Usage:!link <your_minecraft_name>');
+        linked[msg.author.id] = mcname;
+        fs.writeFileSync('./linked.json', JSON.stringify(linked));
+        return msg.reply(`Linked! ${msg.author.tag} -> ${mcname}`);
     }
-  }
+
+    if (cmd === "!buy") {
+        const mcname = linked[msg.author.id];
+        if (!mcname) return msg.reply('Not linked! Use!link <your_minecraft_name> first.');
+        const input = args[1]?.toLowerCase();
+        if (!input) return msg.reply('Usage:!buy hero7d or!buy hero30d');
+        let days = input.includes('30')? '30' : '7';
+        let rank = 'hero';
+        await fetch(`http://localhost:3000/api/buy?player=${mcname}&rank=${rank}&days=${days}&key=PLASMA123`);
+        return msg.reply(`${mcname} will receive ${rank} ${days}d in 10 seconds.`);
+                                      }
   if (cmd === "!rank" || cmd === "!lb") {
     let all = await db.all();
     let top = all.filter(e => e.id.startsWith("coins_")).sort((a,b)=>b.value-a.value).slice(0,10);
@@ -204,7 +203,7 @@ client.on("messageCreate", async (msg) => {
   }
   if (cmd === "!clear") {
     if (!msg.member.permissions.has("ManageMessages")) return msg.reply("No permission!");
-    let amount = parseInt(args[1]) || 5;
+    let amount = parseInt(args[1]) || 20;
     await msg.channel.bulkDelete(amount+1).catch(()=>{});
     return msg.channel.send(`🧹 Deleted ${amount} messages`).then(m=>setTimeout(()=>m.delete().catch(()=>{}), 3000));
   }
