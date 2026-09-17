@@ -3,10 +3,6 @@ const app = express();
 app.get('/', (req,res) => res.send('PLASMA BOT is Running!'));
 app.listen(process.env.PORT || 10000, () => console.log('Web server started'));
 
-// ===== USKE BAAD TERA PURANA BOT KA CODE =====
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { QuickDB } = require('quick.db');
-// ... baki tera code niche same rahega
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
@@ -62,27 +58,24 @@ client.on("messageCreate", async (msg) => {
 
   if (!msg.content.startsWith("!")) await db.add(`xp_${msg.author.id}`, 5);
 
-  // ========= HELP COMMAND =========
   if (cmd === "!help") {
     const helpEmbed = new EmbedBuilder()
-     .setTitle("📜 PLASMA BOT - HELP MENU")
-     .setColor(0x00FFFF)
-     .setThumbnail(client.user.displayAvatarURL())
-     .setDescription("Here are all available commands")
-     .addFields(
-        { name: "💰 Economy Commands", value: "`!bal`, `!daily`, `!pay @user 500`, `!shop`, `!buy <item>`, `!inv`, `!rank`, `!leaderboard`, `!hunt`", inline: false },
-        { name: "🎁 Redeem System", value: "`!redeem CODE` - Redeem a code\n`!redeem code create CODE amount [item]` - Admin only\nEx: `!redeem code create DIWALI 5000 vip7d`", inline: false },
-        { name: "⏳ Temp Rank System", value: "`!temprank @user @Role 7d` - Give temp role\n`!temprank @user @Role 30d`\n`!buy vip7d` / `!buy vip30d` - Buy from shop", inline: false },
-        { name: "🔨 Moderation Commands", value: "`!ban @user [reason]`\n`!kick @user [reason]`\n`!mute @user 10m` / `!unmute @user`\n`!clear 10` - Delete messages", inline: false },
-        { name: "👤 Utility & Info", value: "`!avatar @user` - Show avatar\n`!userinfo @user` / `!whois @user`\n`!serverinfo`\n`!ping` - Bot latency", inline: false },
-        { name: "🚀 Future Coming Soon", value: "`!level`, `!profile`, `!slots`, `!coinflip`, `!rob`\nMore games & shop items!", inline: false }
+    .setTitle("📜 PLASMA BOT - HELP MENU")
+    .setColor(0x00FFFF)
+    .setThumbnail(client.user.displayAvatarURL())
+    .setDescription("Here are all available commands")
+    .addFields(
+        { name: "💰 Economy", value: "`!bal`, `!daily`, `!pay @user 500`, `!shop`, `!buy <item>`, `!inv`, `!rank`", inline: false },
+        { name: "🎁 Redeem", value: "`!redeem CODE`\n`!redeem code create CODE amount [item]`", inline: false },
+        { name: "⏳ Temp Rank", value: "`!temprank @user @Role 7d`", inline: false },
+        { name: "🔨 Moderation", value: "`!ban @user`, `!kick @user`, `!mute @user 10m`, `!unmute`, `!clear 10`", inline: false },
+        { name: "👤 Utility", value: "`!avatar @user`, `!userinfo`, `!serverinfo`, `!ping`", inline: false }
       )
-     .setFooter({ text: `Requested by ${msg.author.tag}`, iconURL: msg.author.displayAvatarURL() })
-     .setTimestamp();
+    .setFooter({ text: `Requested by ${msg.author.tag}`, iconURL: msg.author.displayAvatarURL() })
+    .setTimestamp();
     return msg.channel.send({ embeds: [helpEmbed] });
   }
 
-  // ECONOMY
   if (cmd === "!bal") {
     let target = msg.mentions.users.first() || msg.author;
     let bal = await db.get(`coins_${target.id}`) || 0;
@@ -136,8 +129,6 @@ client.on("messageCreate", async (msg) => {
     top.forEach((e,i)=> txt += `${i+1}. <@${e.id.split("_")[1]}> - ${e.value}\n`);
     return msg.channel.send(txt);
   }
-
-  // REDEEM
   if (cmd === "!redeem" && args[1] === "code" && args[2] === "create") {
     if (!msg.member.permissions.has("Administrator")) return msg.reply("Admin only!");
     let code = args[3]; let amount = parseInt(args[4]) || 0; let itemId = args[5];
@@ -158,8 +149,6 @@ client.on("messageCreate", async (msg) => {
     await db.set(`used_${code}_${msg.author.id}`, true);
     return msg.reply(`🎉 Redeemed ${code}! +${data.amount} coins!`);
   }
-
-  // MODERATION
   if (cmd === "!ban") {
     if (!msg.member.permissions.has("BanMembers")) return msg.reply("No permission!");
     let target = msg.mentions.members.first();
@@ -195,35 +184,9 @@ client.on("messageCreate", async (msg) => {
     await msg.channel.bulkDelete(amount+1).catch(()=>{});
     return msg.channel.send(`🧹 Deleted ${amount} messages`).then(m=>setTimeout(()=>m.delete().catch(()=>{}), 3000));
   }
-
-  // UTILITY
   if (cmd === "!avatar" || cmd === "!av") {
     let target = msg.mentions.users.first() || msg.author;
     const embed = new EmbedBuilder().setTitle(`${target.username}'s Avatar`).setImage(target.displayAvatarURL({ size: 1024 })).setColor(0x00FFFF);
-    return msg.channel.send({ embeds: [embed] });
-  }
-  if (cmd === "!userinfo" || cmd === "!whois") {
-    let target = msg.mentions.members.first() || msg.member;
-    const embed = new EmbedBuilder()
-     .setTitle(`${target.user.username} - Info`)
-     .setThumbnail(target.user.displayAvatarURL())
-     .addFields(
-        { name: "ID", value: target.id, inline: true },
-        { name: "Joined Server", value: `<t:${Math.floor(target.joinedTimestamp/1000)}:R>`, inline: true },
-        { name: "Account Created", value: `<t:${Math.floor(target.user.createdTimestamp/1000)}:R>`, inline: true },
-        { name: "Roles", value: target.roles.cache.map(r=>r.toString()).join(", ").slice(0,1000) || "None" }
-      ).setColor(0x00FFFF);
-    return msg.channel.send({ embeds: [embed] });
-  }
-  if (cmd === "!serverinfo") {
-    const embed = new EmbedBuilder()
-     .setTitle(`${msg.guild.name} - Server Info`)
-     .setThumbnail(msg.guild.iconURL())
-     .addFields(
-        { name: "Owner", value: `<@${msg.guild.ownerId}>`, inline: true },
-        { name: "Members", value: `${msg.guild.memberCount}`, inline: true },
-        { name: "Created", value: `<t:${Math.floor(msg.guild.createdTimestamp/1000)}:R>`, inline: true }
-      ).setColor(0x00FFFF);
     return msg.channel.send({ embeds: [embed] });
   }
   if (cmd === "!ping") {
