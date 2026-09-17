@@ -22,11 +22,6 @@ app.get('/api/done', (req, res) => {
 });
 app.listen(3000, () => console.log('API running'));
 
-const express = require('express');
-const app = express();
-app.get('/', (req,res) => res.send('PLASMA BOT is Running!'));
-app.listen(process.env.PORT || 10000, () => console.log('Web server started'));
-
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
