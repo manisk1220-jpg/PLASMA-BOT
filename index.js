@@ -23,6 +23,9 @@ app.get('/api/done', (req, res) => {
 app.listen(3000, () => console.log('API running'));
 
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const fs = require('fs');
+let linked = {};
+try{ linked = JSON.parse(fs.readFileSync('./linked.json')); }catch(e){}
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
 
@@ -40,6 +43,10 @@ const client = new Client({
 
 const ROLES = {
   vip: "1544255313891295262",
+  hero: "PUT_HERO_ROLE_ID_HERE",
+  shadow: "PUT_SHADOW_ROLE_ID_HERE",
+  plasma: "PUT_PLASMA_ROLE_ID_HERE",
+  plasmaplus: "PUT_PLASMAPLUS_ROLE_ID_HERE"
 }
 
 const shopItems = {
@@ -113,7 +120,7 @@ client.on("messageCreate", async (msg) => {
   if (cmd === "!daily") {
     let last = await db.get(`daily_${msg.author.id}`);
     if (last && Date.now() - last < 86400000) return msg.reply("Already claimed!");
-    await db.add(`coins_${msg.author.id}`, 500);
+    await db.add(`coins_${msg.author.id}`, 1000);
     await db.set(`daily_${msg.author.id}`, Date.now());
     return msg.reply("You received 500 coins!");
   }
@@ -198,7 +205,7 @@ client.on("messageCreate", async (msg) => {
   }
   if (cmd === "!clear") {
     if (!msg.member.permissions.has("ManageMessages")) return msg.reply("No permission!");
-    let amount = parseInt(args[1]) || 20;
+    let amount = parseInt(args[1]) || 100;
     await msg.channel.bulkDelete(amount+1).catch(()=>{});
     return msg.channel.send(`🧹 Deleted ${amount} messages`).then(m=>setTimeout(()=>m.delete().catch(()=>{}), 3000));
   }
