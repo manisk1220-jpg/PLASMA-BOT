@@ -4,7 +4,7 @@ const app = express();
 let pendingOrders = [];
 let linked = {};
 if (fs.existsSync('./linked.json')) {
-    linked = JSON.parse(fs.readFileSync('./linked.json'));
+    try { linked = JSON.parse(fs.readFileSync('./linked.json')); } catch(e){}
 }
 app.get('/api/buy', (req, res) => {
     if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
@@ -20,12 +20,9 @@ app.get('/api/done', (req, res) => {
     pendingOrders = pendingOrders.filter(o => o.player!== req.query.player);
     res.send('Done');
 });
-app.listen(3000, () => console.log('API running'));
+app.listen(3000, () => console.log('API running on 3000'));
 
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const fs = require('fs');
-let linked = {};
-try{ linked = JSON.parse(fs.readFileSync('./linked.json')); }catch(e){}
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
 
@@ -43,202 +40,132 @@ const client = new Client({
 
 const ROLES = {
   vip: "1544255313891295262",
-  hero: "PUT_HERO_ROLE_ID_HERE",
-  shadow: "PUT_SHADOW_ROLE_ID_HERE",
-  plasma: "PUT_PLASMA_ROLE_ID_HERE",
-  plasmaplus: "PUT_PLASMAPLUS_ROLE_ID_HERE"
+  hero: "1544254993815838780",
+  shadow: "1544255600693616751",
+  plasma: "1544256311313567774",
+  plasmaplus: "1544256491236626512"
 }
 
 const shopItems = {
-  // VIP
   "vip7d": { name: "VIP Rank [7 Days]", price: 5000, type: "temprole", role: "vip", duration: "7d" },
   "vip30d": { name: "VIP Rank [30 Days]", price: 15000, type: "temprole", role: "vip", duration: "30d" },
-  // HERO
   "hero7d": { name: "Hero Rank [7 Days]", price: 8000, type: "temprole", role: "hero", duration: "7d" },
   "hero30d": { name: "Hero Rank [30 Days]", price: 25000, type: "temprole", role: "hero", duration: "30d" },
-  // SHADOW
   "shadow7d": { name: "Shadow Rank [7 Days]", price: 15000, type: "temprole", role: "shadow", duration: "7d" },
   "shadow30d": { name: "Shadow Rank [30 Days]", price: 55000, type: "temprole", role: "shadow", duration: "30d" },
-  // PLASMA
   "plasma7d": { name: "Plasma Rank [7 Days]", price: 25000, type: "temprole", role: "plasma", duration: "7d" },
   "plasma30d": { name: "Plasma Rank [30 Days]", price: 90000, type: "temprole", role: "plasma", duration: "30d" },
-  // PLASMA+
   "plasmaplus7d": { name: "Plasma+ Rank [7 Days]", price: 40000, type: "temprole", role: "plasmaplus", duration: "7d" },
   "plasmaplus30d": { name: "Plasma+ Rank [30 Days]", price: 140000, type: "temprole", role: "plasmaplus", duration: "30d" },
-
-  // MONEY CARDS - ye coins system se link hai
   "100k": { name: "100K Money Card", price: 1000, type: "money", amount: 100000 },
   "500k": { name: "500K Money Card", price: 4500, type: "money", amount: 500000 },
   "1m": { name: "1M Money Card", price: 8500, type: "money", amount: 1000000 },
   "5m": { name: "5M Money Card", price: 40000, type: "money", amount: 5000000 },
   "10m": { name: "10M Money Card", price: 75000, type: "money", amount: 10000000 },
   "50m": { name: "50M Money Card", price: 350000, type: "money", amount: 50000000 },
-  "100m": { name: "100M Money Card", price: 650000, type: "money", amount: 100000000 },
-
-  // Old item
-  "rod": { name: "Fishing Rod", price: 1000, type: "item", desc: "Bonus on hunt" }
+  "100m": { name: "100M Money Card", price: 650000, type: "money", amount: 100000000 }
 };
-client.on("ready", () => {
-  console.log(`PLASMA BOT ONLINE ${client.user.tag}`);
-  setInterval(async () => {
-    let all = await db.all();
-    let temps = all.filter(e => e.id.startsWith("temp_"));
-    for (let entry of temps) {
-      if (Date.now() > entry.value.expiresAt) {
-        try {
-          let [_, guildId, userId, roleKey] = entry.id.split("_");
-          let guild = client.guilds.cache.get(guildId);
-          if (guild) {
-            let member = await guild.members.fetch(userId).catch(()=>null);
-            let roleId = entry.value.roleId || ROLES[roleKey];
-            if (member && roleId) await member.roles.remove(roleId).catch(()=>{});
-          }
-        } catch {}
-        await db.delete(entry.id);
-      }
-    }
-  }, 60*1000);
-});
+
+client.on("ready", () => { console.log(`PLASMA BOT ONLINE ${client.user.tag}`); });
 
 client.on("messageCreate", async (msg) => {
   if (msg.author.bot ||!msg.guild) return;
   let args = msg.content.trim().split(/ +/);
-  let cmd = args[0].toLowerCase();
+  let cmdRaw = args[0].toLowerCase();
+  let cmd = cmdRaw.replace("pl!", "!");
 
-  if (!msg.content.startsWith("!")) await db.add(`xp_${msg.author.id}`, 5);
+  // pl!link
+  if (cmd === "!link") {
+      const mcname = args[1];
+      if (!mcname) return msg.reply('Usage: `pl!link <your_minecraft_name>`');
+      linked[msg.author.id] = mcname;
+      fs.writeFileSync('./linked.json', JSON.stringify(linked));
+      return msg.reply(`✅ Linked! ${msg.author.tag} -> ${mcname}`);
+  }
+
+  // pl!server ip / info
+  if (cmd === "!server") {
+      const sub = args[1]?.toLowerCase();
+      if (sub === "ip") {
+          const embed = new EmbedBuilder()
+         .setTitle("🌐 PLASMA - Minecraft Server IP")
+         .setDescription("**IP:** `expressing-slide.tun.ply.gg`\n**Port:** `25565`\n\n**Full:** `expressing-slide.tun.ply.gg:25565`")
+         .setColor("Green");
+          return msg.reply({ embeds: [embed] });
+      }
+      if (sub === "info") {
+          const guild = msg.guild;
+          const owner = await guild.fetchOwner();
+          const embed = new EmbedBuilder()
+        .setTitle(`📊 ${guild.name} - Server Info`)
+        .setThumbnail(guild.iconURL({ dynamic: true }))
+        .setColor("Blurple")
+        .addFields(
+               { name: "👑 Owner", value: `<@${owner.id}>`, inline: true },
+               { name: "👥 Members", value: `Total: ${guild.memberCount}`, inline: true },
+               { name: "📁 Channels", value: `Total: ${guild.channels.cache.size}`, inline: true },
+               { name: "🎭 Roles", value: `${guild.roles.cache.size}`, inline: true },
+               { name: "🌐 MC IP", value: "`expressing-slide.tun.ply.gg:25565`", inline: false }
+           )
+         .setTimestamp();
+          return msg.reply({ embeds: [embed] });
+      }
+  }
+
+  // pl!pf
+  if (cmd === "!pf" || cmd === "!profile") {
+      const target = msg.mentions.users.first() || msg.author;
+      const bal = await db.get(`coins_${target.id}`) || 0;
+      const mcname = linked[target.id] || "Not Linked";
+      const embed = new EmbedBuilder()
+      .setTitle(`${target.username} - Profile`)
+      .setThumbnail(target.displayAvatarURL({ dynamic: true }))
+      .setColor("Gold")
+      .addFields(
+            { name: "Coins", value: `${bal}`, inline: true },
+            { name: "Minecraft", value: `${mcname}`, inline: true }
+        )
+      return msg.reply({ embeds: [embed] });
+  }
 
   if (cmd === "!help") {
-    const helpEmbed = new EmbedBuilder()
-    .setTitle("📜 PLASMA BOT - HELP MENU")
-    .setColor(0x00FFFF)
-    .setThumbnail(client.user.displayAvatarURL())
-    .setDescription("Here are all available commands")
-    .addFields(
-        { name: "💰 Economy", value: "`!bal`, `!daily`, `!pay @user 500`, `!shop`, `!buy <item>`, `!inv`, `!rank`", inline: false },
-        { name: "🎁 Redeem", value: "`!redeem CODE`\n`!redeem code create CODE amount [item]`", inline: false },
-        { name: "⏳ Temp Rank", value: "`!temprank @user @Role 7d`", inline: false },
-        { name: "🔨 Moderation", value: "`!ban @user`, `!kick @user`, `!mute @user 10m`, `!unmute`, `!clear 10`", inline: false },
-        { name: "👤 Utility", value: "`!avatar @user`, `!userinfo`, `!serverinfo`, `!ping`", inline: false }
-      )
-    .setFooter({ text: `Requested by ${msg.author.tag}`, iconURL: msg.author.displayAvatarURL() })
-    .setTimestamp();
-    return msg.channel.send({ embeds: [helpEmbed] });
-  }
-
-  if (cmd === "!bal") {
-    let target = msg.mentions.users.first() || msg.author;
-    let bal = await db.get(`coins_${target.id}`) || 0;
-    return msg.reply(`💰 **${target.username}** has **${bal}** coins`);
-  }
-  if (cmd === "!pay") {
-    let target = msg.mentions.users.first();
-    let amount = parseInt(args[2]);
-    if (!target || isNaN(amount)) return msg.reply("Usage: `!pay @user 500`");
-    let bal = await db.get(`coins_${msg.author.id}`) || 0;
-    if (bal < amount) return msg.reply("Not enough coins!");
-    await db.add(`coins_${msg.author.id}`, -amount);
-    await db.add(`coins_${target.id}`, amount);
-    return msg.reply(`✅ Sent **${amount}** coins to **${target.username}**!`);
-  }
-  if (cmd === "!daily") {
-    let last = await db.get(`daily_${msg.author.id}`);
-    if (last && Date.now() - last < 86400000) return msg.reply("Already claimed!");
-    await db.add(`coins_${msg.author.id}`, 1000);
-    await db.set(`daily_${msg.author.id}`, Date.now());
-    return msg.reply("You received 500 coins!");
-  }
-  if (cmd === "!shop") {
-    let txt = "**🏪 SHOP**\n";
-    for (let id in shopItems) txt += `**${id}** - ${shopItems[id].name} - ${shopItems[id].price} coins\n`;
-    return msg.channel.send(txt);
-  }
-      if (cmd === "!link") {
-        const mcname = args[1];
-        if (!mcname) return msg.reply('Usage:!link <your_minecraft_name>');
-        linked[msg.author.id] = mcname;
-        fs.writeFileSync('./linked.json', JSON.stringify(linked));
-        return msg.reply(`Linked! ${msg.author.tag} -> ${mcname}`);
-    }
-
-    if (cmd === "!buy") {
-        const mcname = linked[msg.author.id];
-        if (!mcname) return msg.reply('Not linked! Use!link <your_minecraft_name> first.');
-        const input = args[1]?.toLowerCase();
-        if (!input) return msg.reply('Usage:!buy hero7d or!buy hero30d');
-        let days = input.includes('30')? '30' : '7';
-        let rank = 'hero';
-        await fetch(`http://localhost:3000/api/buy?player=${mcname}&rank=${rank}&days=${days}&key=PLASMA123`);
-        return msg.reply(`${mcname} will receive ${rank} ${days}d in 10 seconds.`);
-                                      }
-  if (cmd === "!rank" || cmd === "!lb") {
-    let all = await db.all();
-    let top = all.filter(e => e.id.startsWith("coins_")).sort((a,b)=>b.value-a.value).slice(0,10);
-    let txt = "**🏆 TOP 10**\n";
-    top.forEach((e,i)=> txt += `${i+1}. <@${e.id.split("_")[1]}> - ${e.value}\n`);
-    return msg.channel.send(txt);
-  }
-  if (cmd === "!redeem" && args[1] === "code" && args[2] === "create") {
-    if (!msg.member.permissions.has("Administrator")) return msg.reply("Admin only!");
-    let code = args[3]; let amount = parseInt(args[4]) || 0; let itemId = args[5];
-    await db.set(`redeem_${code}`, { amount, itemId });
-    return msg.channel.send(`✅ Code Created: ${code} = ${amount} coins ${itemId||""}`);
-  }
-  if (cmd === "!redeem" && args[1]!== "code") {
-    let code = args[1];
-    let data = await db.get(`redeem_${code}`);
-    if (!data) return msg.reply("Invalid code!");
-    if (await db.get(`used_${code}_${msg.author.id}`)) return msg.reply("Already used!");
-    if (data.amount) await db.add(`coins_${msg.author.id}`, data.amount);
-    if (data.itemId && shopItems[data.itemId]?.type === "temprole") {
-      let item = shopItems[data.itemId];
-      await msg.member.roles.add(ROLES[item.role]).catch(()=>{});
-      await db.set(`temp_${msg.guild.id}_${msg.author.id}_${item.role}`, { expiresAt: Date.now()+ms(item.duration), roleId: ROLES[item.role] });
-    }
-    await db.set(`used_${code}_${msg.author.id}`, true);
-    return msg.reply(`🎉 Redeemed ${code}! +${data.amount} coins!`);
-  }
-  if (cmd === "!ban") {
-    if (!msg.member.permissions.has("BanMembers")) return msg.reply("No permission!");
-    let target = msg.mentions.members.first();
-    if (!target) return msg.reply("Mention user!");
-    await target.ban({ reason: args.slice(2).join(" ") || "No reason" }).catch(()=>{});
-    return msg.channel.send(`🔨 Banned ${target.user.tag}`);
-  }
-  if (cmd === "!kick") {
-    if (!msg.member.permissions.has("KickMembers")) return msg.reply("No permission!");
-    let target = msg.mentions.members.first();
-    if (!target) return msg.reply("Mention user!");
-    await target.kick(args.slice(2).join(" ") || "No reason").catch(()=>{});
-    return msg.channel.send(`👢 Kicked ${target.user.tag}`);
-  }
-  if (cmd === "!mute") {
-    if (!msg.member.permissions.has("ModerateMembers")) return msg.reply("No permission!");
-    let target = msg.mentions.members.first();
-    let dur = args[2] || "10m";
-    if (!target) return msg.reply("Usage: `!mute @user 10m`");
-    await target.timeout(ms(dur), "Muted").catch(()=>{});
-    return msg.channel.send(`🔇 Muted ${target.user.tag} for ${dur}`);
-  }
-  if (cmd === "!unmute") {
-    if (!msg.member.permissions.has("ModerateMembers")) return msg.reply("No permission!");
-    let target = msg.mentions.members.first();
-    if (!target) return msg.reply("Mention user!");
-    await target.timeout(null).catch(()=>{});
-    return msg.channel.send(`🔊 Unmuted ${target.user.tag}`);
-  }
-  if (cmd === "!clear") {
-    if (!msg.member.permissions.has("ManageMessages")) return msg.reply("No permission!");
-    let amount = parseInt(args[1]) || 100;
-    await msg.channel.bulkDelete(amount+1).catch(()=>{});
-    return msg.channel.send(`🧹 Deleted ${amount} messages`).then(m=>setTimeout(()=>m.delete().catch(()=>{}), 3000));
-  }
-  if (cmd === "!avatar" || cmd === "!av") {
-    let target = msg.mentions.users.first() || msg.author;
-    const embed = new EmbedBuilder().setTitle(`${target.username}'s Avatar`).setImage(target.displayAvatarURL({ size: 1024 })).setColor(0x00FFFF);
+    const embed = new EmbedBuilder()
+  .setTitle("📜 PLASMA BOT - PL COMMANDS")
+  .setDescription("`pl!link <name>`\n`pl!shop`\n`pl!buy <id>`\n`pl!pf`\n`pl!server ip`\n`pl!server info`")
+  .setColor(0x00FFFF);
     return msg.channel.send({ embeds: [embed] });
   }
-  if (cmd === "!ping") {
-    return msg.reply(`🏓 Pong! ${client.ws.ping}ms`);
+
+  if (cmd === "!shop") {
+    let rankText = ""; let moneyText = "";
+    for (let id in shopItems) {
+        let item = shopItems[id];
+        if (item.type === "temprole") rankText += `**${id}** - ${item.name} - ${item.price}\n`;
+        else moneyText += `**${id}** - ${item.name} - ${item.price}\n`;
+    }
+    const embed = new EmbedBuilder().setTitle("🏪 PLASMA SHOP").setDescription(`**RANKS:**\n${rankText}\n**MONEY:**\n${moneyText}`).setColor("Gold");
+    return msg.channel.send({ embeds: [embed] });
+  }
+
+  if (cmd === "!buy") {
+    const itemId = args[1]?.toLowerCase();
+    const item = shopItems[itemId];
+    if (!item) return msg.reply('Item not found! Use pl!shop');
+    let balance = await db.get(`coins_${msg.author.id}`) || 0;
+    if (balance < item.price) return msg.reply(`Need ${item.price}, you have ${balance}`);
+    if (item.type === "temprole" &&!linked[msg.author.id]) return msg.reply('Link first! `pl!link <name>`');
+    await db.add(`coins_${msg.author.id}`, -item.price);
+    if (item.type === "money") {
+        await db.add(`coins_${msg.author.id}`, item.amount);
+        return msg.reply(`✅ Redeemed ${item.name} +${item.amount}`);
+    }
+    if (item.type === "temprole") {
+        const mcname = linked[msg.author.id];
+        let roleId = ROLES[item.role];
+        try { let m = await msg.guild.members.fetch(msg.author.id); await m.roles.add(roleId); } catch(e){}
+        await fetch(`http://localhost:3000/api/buy?player=${mcname}&rank=${item.role}&days=${item.duration.replace('d','')}&key=PLASMA123`);
+        return msg.reply(`✅ ${item.name} for ${mcname} in 10 sec`);
+    }
   }
 });
 
