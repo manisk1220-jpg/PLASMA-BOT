@@ -4,21 +4,24 @@ const app = express();
 let pendingOrders = [];
 let linked = {};
 if (fs.existsSync('./linked.json')) {
-    try { linked = JSON.parse(fs.readFileSync('./linked.json')); } catch(e){}
+  try { linked = JSON.parse(fs.readFileSync('./linked.json')); } catch(e){}
 }
 app.get('/api/buy', (req, res) => {
-    if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
+    if (req.query.key !== 'PLASMA123') return res.status(403).send('Invalid Key');
     pendingOrders.push({ player: req.query.player, rank: req.query.rank, days: req.query.days });
     res.send('Order Added');
 });
 app.get('/api/pending', (req, res) => {
-    if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
+    if (req.query.key !== 'PLASMA123') return res.status(403).send('Invalid Key');
     res.json(pendingOrders);
 });
 app.get('/api/done', (req, res) => {
-    if (req.query.key!== 'PLASMA123') return res.status(403).send('Invalid Key');
-    pendingOrders = pendingOrders.filter(o => o.player!== req.query.player);
+    if (req.query.key !== 'PLASMA123') return res.status(403).send('Invalid Key');
+    pendingOrders = pendingOrders.filter(o => o.player !== req.query.player);
     res.send('Done');
+});
+app.get('/', (req, res) => {
+    res.send('PLASMA BOT IS RUNNING ✅ | API: /api/pending?key=PLASMA123');
 });
 app.listen(3000, () => console.log('API running on 3000'));
 
@@ -35,14 +38,14 @@ const ms = (str) => {
 };
 
 const client = new Client({
-  intents: [ GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers ]
+  intents: [ GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent ]
 });
 
 const ROLES = {
   vip: "1544255313891295262",
-  hero: "1544254993815838780",
+  hero: "154425499381583870",
   shadow: "1544255600693616751",
-  plasma: "1544256311313567774",
+  plasma: "154425631133567774",
   plasmaplus: "1544256491236626512"
 }
 
