@@ -50,24 +50,23 @@ const ROLES = {
 }
 
 const shopItems = {
-  "vip7d": { name: "VIP Rank [7 Days]", price: 5000, type: "temprole", role: "vip", duration: "7d" },
-  "vip30d": { name: "VIP Rank [30 Days]", price: 15000, type: "temprole", role: "vip", duration: "30d" },
-  "hero7d": { name: "Hero Rank [7 Days]", price: 8000, type: "temprole", role: "hero", duration: "7d" },
-  "hero30d": { name: "Hero Rank [30 Days]", price: 25000, type: "temprole", role: "hero", duration: "30d" },
-  "shadow7d": { name: "Shadow Rank [7 Days]", price: 15000, type: "temprole", role: "shadow", duration: "7d" },
-  "shadow30d": { name: "Shadow Rank [30 Days]", price: 55000, type: "temprole", role: "shadow", duration: "30d" },
-  "plasma7d": { name: "Plasma Rank [7 Days]", price: 25000, type: "temprole", role: "plasma", duration: "7d" },
-  "plasma30d": { name: "Plasma Rank [30 Days]", price: 90000, type: "temprole", role: "plasma", duration: "30d" },
-  "plasmaplus7d": { name: "Plasma+ Rank [7 Days]", price: 40000, type: "temprole", role: "plasmaplus", duration: "7d" },
-  "plasmaplus30d": { name: "Plasma+ Rank [30 Days]", price: 140000, type: "temprole", role: "plasmaplus", duration: "30d" },
-  "100k": { name: "100K Money Card", price: 1000, type: "money", amount: 100000 },
-  "500k": { name: "500K Money Card", price: 4500, type: "money", amount: 500000 },
-  "1m": { name: "1M Money Card", price: 8500, type: "money", amount: 1000000 },
-  "5m": { name: "5M Money Card", price: 40000, type: "money", amount: 5000000 },
-  "10m": { name: "10M Money Card", price: 75000, type: "money", amount: 10000000 },
-  "50m": { name: "50M Money Card", price: 350000, type: "money", amount: 50000000 },
-  "100m": { name: "100M Money Card", price: 650000, type: "money", amount: 100000000 },
-  "rod": { name: "Fishing Rod", price: 1000, type: "item", desc: "Bonus on hunt" }
+  "vip7d": { name: "VIP Rank [7 Days]", price: 10000, type: "temprole", role: "vip", duration: "7d" },
+  "vip30d": { name: "VIP Rank [30 Days]", price: 20000, type: "temprole", role: "vip", duration: "30d" },
+  "hero7d": { name: "Hero Rank [7 Days]", price: 4000, type: "temprole", role: "hero", duration: "7d" },
+  "hero30d": { name: "Hero Rank [30 Days]", price: 6000, type: "temprole", role: "hero", duration: "30d" },
+  "shadow7d": { name: "Shadow Rank [7 Days]", price: 25000, type: "temprole", role: "shadow", duration: "7d" },
+  "shadow30d": { name: "Shadow Rank [30 Days]", price: 40000, type: "temprole", role: "shadow", duration: "30d" },
+  "plasma7d": { name: "Plasma Rank [7 Days]", price: 55000, type: "temprole", role: "plasma", duration: "7d" },
+  "plasma30d": { name: "Plasma Rank [30 Days]", price: 70000, type: "temprole", role: "plasma", duration: "30d" },
+  "plasmaplus7d": { name: "Plasma+ Rank [7 Days]", price: 85000, type: "temprole", role: "plasmaplus", duration: "7d" },
+  "plasmaplus30d": { name: "Plasma+ Rank [30 Days]", price: 120000, type: "temprole", role: "plasmaplus", duration: "30d" },
+  "100k": { name: "100K Money Card", price: 500, type: "money", amount: 100000 },
+  "500k": { name: "500K Money Card", price: 1000, type: "money", amount: 500000 },
+  "1m": { name: "1M Money Card", price: 2000, type: "money", amount: 1000000 },
+  "5m": { name: "5M Money Card", price: 4000, type: "money", amount: 5000000 },
+  "10m": { name: "10M Money Card", price: 10000, type: "money", amount: 10000000 },
+  "50m": { name: "50M Money Card", price: 20000, type: "money", amount: 50000000 },
+  "100m": { name: "100M Money Card", price: 30000, type: "money", amount: 100000000 },
 };
 
 client.on("ready", () => {
