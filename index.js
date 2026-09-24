@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const API_URL = "https://plasma-bot-z1ol.onrender.com/";
+const API_URL = "https://plasma-bot-llbh.onrender.com/";
 const API_KEY = "PLASMA123";
 const PORT = process.env.PORT || 3000;
 
@@ -23,29 +23,29 @@ const MOD_CONFIG = {
 let antiNukeCache = { bans: new Map(), kicks: new Map(), channelDelete: new Map(), roleDelete: new Map() };
 
 app.get('/api/buy', (req, res) => {
-    if (req.query.key!== API_KEY) return res.status(403).send('Invalid Key');
+    if (req.query.key !== API_KEY) return res.status(403).send('Invalid Key');
     pendingOrders.push({ player: req.query.player, rank: req.query.rank, days: req.query.days });
     res.send('Order Added');
 });
 app.get('/api/pending', (req, res) => {
-    if (req.query.key!== API_KEY) return res.status(403).send('Invalid Key');
+    if (req.query.key !== API_KEY) return res.status(403).send('Invalid Key');
     res.json(pendingOrders);
 });
 app.get('/api/pending-money', (req, res) => {
-    if (req.query.key!== API_KEY) return res.status(403).send('Invalid Key');
-    let data = fs.existsSync('./pendingMoney.json')? JSON.parse(fs.readFileSync('./pendingMoney.json')) : [];
+    if (req.query.key !== API_KEY) return res.status(403).send('Invalid Key');
+    let data = fs.existsSync('./pendingMoney.json') ? JSON.parse(fs.readFileSync('./pendingMoney.json')) : [];
     res.json(data);
 });
 app.get('/api/claim-money', (req, res) => {
-    if (req.query.key!== API_KEY) return res.status(403).send('Invalid Key');
-    let data = fs.existsSync('./pendingMoney.json')? JSON.parse(fs.readFileSync('./pendingMoney.json')) : [];
-    data = data.filter(o => o.id!== req.query.id);
+    if (req.query.key !== API_KEY) return res.status(403).send('Invalid Key');
+    let data = fs.existsSync('./pendingMoney.json') ? JSON.parse(fs.readFileSync('./pendingMoney.json')) : [];
+    data = data.filter(o => o.id !== req.query.id);
     fs.writeFileSync('./pendingMoney.json', JSON.stringify(data));
     res.send('Claimed');
 });
 app.get('/api/done', (req, res) => {
-    if (req.query.key!== API_KEY) return res.status(403).send('Invalid Key');
-    pendingOrders = pendingOrders.filter(o => o.player!== req.query.player);
+    if (req.query.key !== API_KEY) return res.status(403).send('Invalid Key');
+    pendingOrders = pendingOrders.filter(o => o.player !== req.query.player);
     res.send('Done');
 });
 app.get('/', (req, res) => { res.send(`PLASMA BOT RUNNING ✅ API: ${API_URL} Paper:1.21.11 Java:25`); });
@@ -186,20 +186,20 @@ client.on("messageCreate", async (msg) => {
 
     if (cmd === "!help") {
       const helpEmbed = new EmbedBuilder()
-      .setTitle("📜 PLASMA BOT - HELP MENU")
-      .setColor(0x00FFFF)
-      .setThumbnail(client.user.displayAvatarURL())
-      .setDescription(`**API:** ${API_URL}\n**All commands work with \`!\` and \`pl!\` prefix**`)
-      .addFields(
+        .setTitle("📜 PLASMA BOT - HELP MENU")
+        .setColor(0x00FFFF)
+        .setThumbnail(client.user.displayAvatarURL())
+        .setDescription(`**API:** ${API_URL}\n**All commands work with \`!\` and \`pl!\` prefix**`)
+        .addFields(
           { name: "💰 Economy", value: "`!bal`, `!daily`, `!pay @user 500`, `!shop`, `!buy <item>`, `!rank`", inline: false },
-          { name: "🔗 PL System", value: "`pl!link <mc_name>` - Link MC\n`pl!pf` / `pl!profile` - Your profile\n`pl!server ip` - MC IP: \`expressing-slide.tun.ply.gg:25565\`\n`pl!server info` - Discord info", inline: false },
-          { name: "🎁 Redeem MAX USE", value: "`!redeem CODE`\n`!redeem code create CODE amount maxUse [itemId]`\nEx: `!redeem code create FREECOINS 2000 10`\nEx: `!redeem code create VIPFREE 0 5 vip7d`", inline: false },
+          { name: "🔗 PL System", value: "`pl!link <mc_name>` - Link MC\n`pl!pf` / `pl!profile` - Your profile\n`pl!server ip` - MC IP: \`expressing-slide.tun.ply.gg:25565\`", inline: false },
+          { name: "🎁 Redeem MAX USE", value: "`!redeem CODE`\n`!redeem code create CODE amount maxUse [itemId]`", inline: false },
           { name: "🔨 Moderation", value: "`!ban @user`, `!tempban @user 1d`, `!kick @user`, `!mute @user 10m`, `!tempmute @user 1h`, `!unmute`, `!unban ID`, `!clear 10`", inline: false },
           { name: "🛡️ AntiNuke", value: "`!antinuke on/off` - Auto ban on nuke", inline: false },
           { name: "👤 Utility", value: "`!avatar @user`, `!ping`, `!pf`", inline: false }
         )
-      .setFooter({ text: `Requested by ${msg.author.tag} | ${API_URL}`, iconURL: msg.author.displayAvatarURL() })
-      .setTimestamp();
+        .setFooter({ text: `Requested by ${msg.author.tag} | ${API_URL}`, iconURL: msg.author.displayAvatarURL() })
+        .setTimestamp();
       return msg.channel.send({ embeds: [helpEmbed] });
     }
 
@@ -221,7 +221,7 @@ client.on("messageCreate", async (msg) => {
 
     if (cmd === "!buy") {
       const itemId = args[1]?.toLowerCase();
-      if (!itemId) return msg.reply('Usage: `pl!buy <id>`\nDo `pl!shop` to see items');
+      if (!itemId) return msg.reply('Usage: `pl!buy <id>`');
       const item = shopItems[itemId];
       if (!item) return msg.reply('Item not found! Do `pl!shop`');
       let balance = await db.get(`coins_${msg.author.id}`) || 0;
@@ -230,7 +230,7 @@ client.on("messageCreate", async (msg) => {
       await db.add(`coins_${msg.author.id}`, -item.price);
       if (item.type === "money") {
         let id = Date.now().toString() + "_" + msg.author.id;
-        let pendingMoney = fs.existsSync('./pendingMoney.json')? JSON.parse(fs.readFileSync('./pendingMoney.json')) : [];
+        let pendingMoney = fs.existsSync('./pendingMoney.json') ? JSON.parse(fs.readFileSync('./pendingMoney.json')) : [];
         pendingMoney.push({ id, player: linked[msg.author.id], discordId: msg.author.id, amount: item.amount, card: itemId });
         fs.writeFileSync('./pendingMoney.json', JSON.stringify(pendingMoney));
         return msg.reply(`✅ You bought **${item.name}**! **$${item.amount.toLocaleString()}** will be given in-game to **${linked[msg.author.id]}** in 20 sec!`);
@@ -252,23 +252,20 @@ client.on("messageCreate", async (msg) => {
 
     if (cmd === "!redeem" && args[1] === "code" && args[2] === "create") {
       if (!msg.member.permissions.has(PermissionsBitField.Flags.Administrator)) return msg.reply("Admin only!");
-      let code = args[3];
-      let amount = parseInt(args[4]) || 0;
-      let maxUse = parseInt(args[5]) || 0;
-      let itemId = args[6];
-      if (!code) return msg.reply("Usage: `!redeem code create CODE amount maxUse [itemId]`\nEx: `!redeem code create FREECOINS 2000 10`");
+      let code = args[3]; let amount = parseInt(args[4]) || 0; let maxUse = parseInt(args[5]) || 0; let itemId = args[6];
+      if (!code) return msg.reply("Usage: `!redeem code create CODE amount maxUse [itemId]`");
       await db.set(`redeem_${code}`, { amount, itemId, maxUse, uses: 0 });
-      let limitText = maxUse === 0? "Unlimited" : `${maxUse} users`;
+      let limitText = maxUse === 0 ? "Unlimited" : `${maxUse} users`;
       return msg.channel.send(`✅ Code Created: ${code} = ${amount} coins ${itemId || ""}\nLimit: ${limitText}\nAPI: ${API_URL}`);
     }
 
-    if (cmd === "!redeem" && args[1]!== "code") {
+    if (cmd === "!redeem" && args[1] !== "code") {
       let code = args[1];
       if (!code) return msg.reply("Usage: `!redeem CODE`");
       let data = await db.get(`redeem_${code}`);
       if (!data) return msg.reply("Invalid code!");
       if (await db.get(`used_${code}_${msg.author.id}`)) return msg.reply("Already used!");
-      if (data.maxUse!== 0 && data.uses >= data.maxUse) return msg.reply(`❌ Expire ho gaya! Max ${data.maxUse} uses khatam.`);
+      if (data.maxUse !== 0 && data.uses >= data.maxUse) return msg.reply(`❌ Expire ho gaya! Max ${data.maxUse} uses khatam.`);
       if (data.amount) await db.add(`coins_${msg.author.id}`, data.amount);
       if (data.itemId && shopItems[data.itemId]?.type === "temprole") {
         let item = shopItems[data.itemId];
@@ -281,7 +278,7 @@ client.on("messageCreate", async (msg) => {
       data.uses = (data.uses || 0) + 1;
       await db.set(`redeem_${code}`, data);
       await db.set(`used_${code}_${msg.author.id}`, true);
-      let left = data.maxUse === 0? "Unlimited" : `${data.maxUse - data.uses} left`;
+      let left = data.maxUse === 0 ? "Unlimited" : `${data.maxUse - data.uses} left`;
       return msg.reply(`🎉 Redeemed ${code}! +${data.amount} coins! ${data.itemId || ""}\nLeft: ${left}`);
     }
 
@@ -313,7 +310,7 @@ client.on("messageCreate", async (msg) => {
       if (!target) return msg.reply("Usage: `!mute @user 10m`");
       await target.timeout(ms(dur), "Muted").catch(() => {});
       return msg.channel.send(`🔇 Muted ${target.user.tag} for ${dur}`);
-  }
+}
         if (cmd === "!tempmute") {
       if (!msg.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) return msg.reply("No permission!");
       let target = msg.mentions.members.first(); let timeArg = args[2];
@@ -332,8 +329,7 @@ client.on("messageCreate", async (msg) => {
 
     if (cmd === "!unban") {
       if (!msg.member.permissions.has(PermissionsBitField.Flags.BanMembers)) return msg.reply("No permission!");
-      let userId = args[1];
-      if (!userId) return msg.reply("Usage: `pl!unban USER_ID`");
+      let userId = args[1]; if (!userId) return msg.reply("Usage: `pl!unban USER_ID`");
       await msg.guild.members.unban(userId).catch(() => msg.reply("Invalid ID or not banned"));
       return msg.channel.send(`✅ Unbanned **${userId}**`);
     }
@@ -360,7 +356,7 @@ client.on("messageCreate", async (msg) => {
       let sub = args[1];
       if (sub === "on") { MOD_CONFIG.antinuke.enabled = true; return msg.reply("✅ AntiNuke ON"); }
       if (sub === "off") { MOD_CONFIG.antinuke.enabled = false; return msg.reply("❌ AntiNuke OFF"); }
-      return msg.reply(`AntiNuke: ${MOD_CONFIG.antinuke.enabled? "ON" : "OFF"}\nUse: \`pl!antinuke on/off\``);
+      return msg.reply(`AntiNuke: ${MOD_CONFIG.antinuke.enabled ? "ON" : "OFF"}\nUse: \`pl!antinuke on/off\``);
     }
 
   } catch (e) {
@@ -368,13 +364,7 @@ client.on("messageCreate", async (msg) => {
   }
 });
 
-// 1 SE TOKEN TAK - FINAL LINE
-client.login(process.env.TOKEN).catch(e => console.log("Login Error Future Fix:", e.message));
-
-process.on('unhandledRejection', (r) => {
-  console.log("Future Fix Rejection:", r);
-});
-
-process.on('uncaughtException', (e) => {
-  console.log("Future Fix Exception:", e.message);
-});
+const TOKEN = process.env.TOKEN || process.env.DISCORD_TOKEN;
+client.login(TOKEN).then(()=> console.log("PLASMA BOT ONLINE - API: " + API_URL)).catch(e => console.log("Login Error:", e.message));
+process.on('unhandledRejection', (r) => console.log("Future Fix Rejection:", r));
+process.on('uncaughtException', (e) => console.log("Future Fix Exception:", e.message));
