@@ -8,7 +8,7 @@ app.use(express.json());
 // Set API_URL to your WispByte public API URL if another service/plugin
 // needs to reach this bot's HTTP API.
 const PORT = process.env.PORT || 3000;
-const API_URL = process.env.API_URL || `https://pl.wispbyte.org:${PORT}/`;
+const API_URL = process.env.API_URL || `https://pla.wispbyte.org:${PORT}/`;
 const API_KEY = process.env.API_KEY || "PLASMA123";
 
 let pendingOrders = [];
