@@ -8,8 +8,8 @@ app.use(express.json());
 // Set API_URL to your WispByte public API URL if another service/plugin
 // needs to reach this bot's HTTP API.
 const PORT = process.env.PORT || 3000;
-const API_URL = process.env.API_URL || `http://127.0.0.1:${PORT}/`;
-const API_KEY = process.env.API_KEY || "CHANGE_ME";
+const API_URL = process.env.API_URL || `https://pl.wispbyte.org:${PORT}/`;
+const API_KEY = process.env.API_KEY || "PLASMA123";
 
 let pendingOrders = [];
 let linked = {};
@@ -25,7 +25,7 @@ if (fs.existsSync("./linked.json")) {
 const MOD_CONFIG = {
   welcomeChannelId: "1530927090587799582",
   logChannelId: "1530927127724294266",
-  whitelisted: ["YOUR_OWNER_ID"],
+  whitelisted: ["itz_wannagamer"],
   antinuke: {
     enabled: true,
     banLimit: 3,
